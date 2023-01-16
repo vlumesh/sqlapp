@@ -3,28 +3,41 @@ using System.Data.SqlClient;
 
 namespace sqlapp.Services
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
-        private static string db_source = "dbserver204.database.windows.net";
-        private static string db_user = "sqladmin";
-        private static string db_password = "Umi_Paddu@23";
-        private static string db_database = "db204";
+        //private static string db_source = "dbserver204.database.windows.net";
+        //private static string db_user = "sqladmin";
+        //private static string db_password = "Umi_Paddu@23";
+        //private static string db_database = "db204";
+
+        private readonly IConfiguration _configuration;
+
+        public ProductService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
 
         private SqlConnection GetConnection()
         {
-            var _builder = new SqlConnectionStringBuilder();
-            _builder.DataSource = db_source;
-            _builder.UserID= db_user;
-            _builder.Password= db_password;
-            _builder.InitialCatalog = db_database;
-
-            return new SqlConnection(_builder.ConnectionString);
-
+            return new SqlConnection(_configuration.GetConnectionString("SqlConnection"));
         }
+
+        //private SqlConnection GetConnection()
+        //{
+        //    //var _builder = new SqlConnectionStringBuilder();
+        //    //_builder.DataSource = db_source;
+        //    //_builder.UserID = db_user;
+        //    //_builder.Password = db_password;
+        //    //_builder.InitialCatalog = db_database;
+
+        //    // return new SqlConnection(_builder.ConnectionString);
+           
+
+        //}
 
 
         public List<Product> GetProducts()
-        { 
+        {
             SqlConnection conn = GetConnection();
             List<Product> _productList = new List<Product>();
 
@@ -32,7 +45,7 @@ namespace sqlapp.Services
             conn.Open();
             SqlCommand cmd = new SqlCommand(statement, conn);
 
-            using(SqlDataReader reader = cmd.ExecuteReader())
+            using (SqlDataReader reader = cmd.ExecuteReader())
             {
 
                 while (reader.Read())
@@ -45,7 +58,7 @@ namespace sqlapp.Services
                     };
 
                     _productList.Add(product);
-                }                
+                }
             }
             conn.Close();
             return _productList;
